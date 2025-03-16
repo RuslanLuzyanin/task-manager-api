@@ -1,49 +1,48 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Role } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {
-  }
-
-  async create(createUserDto: CreateUserDto) {
-    return this.prisma.user.create({
-      data: {
-        name: createUserDto.name,
-        email: createUserDto.email,
-        password: createUserDto.password,
-        role: createUserDto.role as Role,
+  constructor(private prisma: PrismaService) {}
+  async findAll() {
+    return this.prisma.user.findMany({
+      where: {
+        isArchived: false,
       },
     });
   }
 
-  async findAll() {
-    return this.prisma.user.findMany();
-  }
-
-  async findOne(id: number) {
-    return this.prisma.user.findUnique({
-      where: { id },
+  async findArchived() {
+    return this.prisma.user.findMany({
+      where: {
+        isArchived: true,
+      },
     });
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
-    const dataToUpdate: Record<string, any> = {};
+  async findOne(id: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+    if (!user) {
+      throw new NotFoundException(`Пользователь с ${id} не найден`);
+    }
+    return user;
+  }
 
-    if (updateUserDto.name) {
-      dataToUpdate['name'] = updateUserDto.name;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+
+    if (!user) {
+      throw new NotFoundException(`Пользователь с ID ${id} не найден`);
     }
-    if (updateUserDto.email) {
-      dataToUpdate['email'] = updateUserDto.email;
-    }
+
+    const dataToUpdate: Record<string, any> = { ...updateUserDto };
+
     if (updateUserDto.password) {
-      dataToUpdate['password'] = updateUserDto.password;
-    }
-    if (updateUserDto.role) {
-      dataToUpdate['role'] = updateUserDto.role;
+      dataToUpdate.password = await bcrypt.hash(updateUserDto.password, 10);
     }
 
     return this.prisma.user.update({
@@ -52,10 +51,35 @@ export class UserService {
     });
   }
 
+  async setDeleteTimer(id: number) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) {
+      throw new NotFoundException(`Пользователь с ${id} не найден`);
+    }
 
-  async remove(id: number) {
-    return this.prisma.user.delete({
+    const deleteAt = new Date();
+    deleteAt.setDate(deleteAt.getDate() + 30);
+
+    return this.prisma.user.update({
       where: { id },
+      data: { deleteAt, isArchived: true },
+    });
+  }
+
+  async restoreFromArchive(id: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+    if (!user) {
+      throw new NotFoundException(`Пользователь с ID ${id} не найден`);
+    }
+
+    return this.prisma.user.update({
+      where: { id },
+      data: {
+        deleteAt: null,
+        isArchived: false,
+      },
     });
   }
 }

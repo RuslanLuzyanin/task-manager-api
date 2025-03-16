@@ -13,14 +13,18 @@ enum Role {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  name      String
-  email     String    @unique
-  password  String
-  createdAt DateTime  @default(now())
-  role      Role
-  projects  Project[]
-  tasks     Task[]
+  id         Int        @id @default(autoincrement())
+  name       String
+  email      String     @unique
+  password   String
+  createdAt  DateTime   @default(now())
+  role       Role       @default(EMPLOYEE)
+  isArchived Boolean    @default(false)
+  deleteAt   DateTime?
+
+  projects   Project[]  @relation("ProjectMembers")
+
+  tasks      TaskUser[]
 }
 
 model Project {
@@ -28,20 +32,32 @@ model Project {
   name        String
   description String?
   createdAt   DateTime @default(now())
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id])
-  tasks       Task[]
+  isArchived  Boolean  @default(false)
+
+  users User[] @relation("ProjectMembers")
+  tasks Task[]
 }
 
 model Task {
-  id          Int       @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   title       String
   description String?
-  status      Boolean   @default(false)
+  status      Boolean    @default(false)
   deadline    DateTime?
-  createdAt   DateTime  @default(now())
+  createdAt   DateTime   @default(now())
+  isArchived  Boolean    @default(false)
+
   projectId   Int
-  project     Project   @relation(fields: [projectId], references: [id])
-  userId      Int
-  user        User      @relation(fields: [userId], references: [id])
+  project     Project    @relation(fields: [projectId], references: [id])
+
+  assignedTo  TaskUser[]
+}
+
+model TaskUser {
+  taskId Int
+  userId Int
+  task   Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, userId])
 }
