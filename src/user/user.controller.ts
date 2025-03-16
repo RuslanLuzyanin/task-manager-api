@@ -1,7 +1,13 @@
 import { Controller, Get, Body, Param, Patch, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
@@ -9,8 +15,7 @@ import { RolesGuard } from 'src/auth/roles.guard';
 @ApiTags('Users')
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {
-  }
+  constructor(private readonly userService: UserService) {}
 
   @UseGuards(JwtAuthGuard)
   @Get()
@@ -23,8 +28,13 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Roles('ADMIN')
   @Get('archived')
-  @ApiOperation({ summary: 'Получить архивированных пользователей, только для Администрации' })
-  @ApiResponse({ status: 200, description: 'Список архивированных пользователей' })
+  @ApiOperation({
+    summary: 'Получить архивированных пользователей, только для Администрации',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Список архивированных пользователей',
+  })
   findArchived() {
     return this.userService.findArchived();
   }
@@ -52,9 +62,15 @@ export class UserController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   @Patch(':id/delete-timer')
-  @ApiOperation({ summary: 'Архивировать пользователя с таймером удаления, только для Администрации' })
+  @ApiOperation({
+    summary:
+      'Архивировать пользователя с таймером удаления, только для Администрации',
+  })
   @ApiParam({ name: 'id', example: 1, description: 'id пользователя' })
-  @ApiResponse({ status: 200, description: 'Пользователь помечен как архивный' })
+  @ApiResponse({
+    status: 200,
+    description: 'Пользователь помечен как архивный',
+  })
   @ApiResponse({ status: 400, description: 'Пользователь не найден' })
   setDeleteTimer(@Param('id') id: string) {
     return this.userService.setDeleteTimer(Number(id));
@@ -63,7 +79,9 @@ export class UserController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   @Patch(':id/restore')
-  @ApiOperation({ summary: 'Восстановить пользователя из архива, только для Администрации' })
+  @ApiOperation({
+    summary: 'Восстановить пользователя из архива, только для Администрации',
+  })
   @ApiParam({ name: 'id', example: 1, description: 'id пользователя' })
   @ApiResponse({ status: 200, description: 'Пользователь восстановлен' })
   @ApiResponse({ status: 400, description: 'Пользователь не найден' })

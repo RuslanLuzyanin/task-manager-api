@@ -7,7 +7,10 @@ export class RegisterDto {
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({ example: 'user@example.com', description: 'Email пользователя' })
+  @ApiProperty({
+    example: 'user@example.com',
+    description: 'Email пользователя',
+  })
   @IsEmail()
   @IsNotEmpty()
   email: string;

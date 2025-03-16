@@ -14,14 +14,13 @@ import { CronService } from './cron/cron.service';
     UserModule,
     ProjectModule,
     TaskModule,
-    AuthModule],
+    AuthModule,
+  ],
   controllers: [],
   providers: [PrismaService, JwtStrategy, CronService],
 })
-
 export class AppModule implements OnModuleInit {
-  constructor(private readonly cronService: CronService) {
-  }
+  constructor(private readonly cronService: CronService) {}
 
   onModuleInit() {
     this.cronService.startCronJob();

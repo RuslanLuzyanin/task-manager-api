@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
@@ -7,11 +11,11 @@ import { User } from '@prisma/client';
 
 @Injectable()
 export class TaskService {
-  constructor(private readonly prisma: PrismaService) {
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
-  private async checkTaskExists(id: number):
-    Promise<Task & { assignedTo: { user: User }[] }> {
+  private async checkTaskExists(
+    id: number,
+  ): Promise<Task & { assignedTo: { user: User }[] }> {
     const task = await this.prisma.task.findUnique({
       where: { id },
       include: {
@@ -26,7 +30,10 @@ export class TaskService {
     return task as Task & { assignedTo: { user: User }[] };
   }
 
-  private async checkTaskAndResponsibility(id: number, userId: number): Promise<Task> {
+  private async checkTaskAndResponsibility(
+    id: number,
+    userId: number,
+  ): Promise<Task> {
     const task = await this.checkTaskExists(id);
 
     const isResponsible = task.assignedTo.some(
@@ -57,21 +64,19 @@ export class TaskService {
     });
   }
 
-  async findAll(
-    {
-      status,
-      projectId,
-      assignedTo,
-      limit = 10,
-      offset = 0,
-    }: {
-      status?: boolean;
-      projectId?: number;
-      assignedTo?: number;
-      limit?: number;
-      offset?: number;
-    },
-  ) {
+  async findAll({
+    status,
+    projectId,
+    assignedTo,
+    limit = 10,
+    offset = 0,
+  }: {
+    status?: boolean;
+    projectId?: number;
+    assignedTo?: number;
+    limit?: number;
+    offset?: number;
+  }) {
     const where: any = {
       isArchived: false,
     };

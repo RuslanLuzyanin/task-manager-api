@@ -5,8 +5,7 @@ import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {
-  }
+  constructor(private prisma: PrismaService) {}
   async findAll() {
     return this.prisma.user.findMany({
       where: {
@@ -52,7 +51,6 @@ export class UserService {
     });
   }
 
-
   async setDeleteTimer(id: number) {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) {
@@ -84,5 +82,4 @@ export class UserService {
       },
     });
   }
-
 }

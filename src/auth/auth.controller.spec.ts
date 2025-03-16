@@ -58,7 +58,9 @@ describe('AuthController', () => {
         password: 'password123',
       };
 
-      mockAuthService.register.mockRejectedValue(new ConflictException('Пользователь с таким email уже существует'));
+      mockAuthService.register.mockRejectedValue(
+        new ConflictException('Пользователь с таким email уже существует'),
+      );
 
       try {
         await authController.register(registerDto);
@@ -89,7 +91,9 @@ describe('AuthController', () => {
         password: 'wrongpassword',
       };
 
-      mockAuthService.login.mockRejectedValue(new UnauthorizedException('Неверные учетные данные'));
+      mockAuthService.login.mockRejectedValue(
+        new UnauthorizedException('Неверные учетные данные'),
+      );
 
       try {
         await authController.login(loginDto);

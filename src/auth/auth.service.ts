@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
@@ -7,16 +11,19 @@ import { RegisterDto } from './dto/register.dto';
 import { Role } from '@prisma/client';
 import { User as PrismaUser } from '@prisma/client';
 
-
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService, private jwtService: JwtService) {
-  }
+  constructor(
+    private prisma: PrismaService,
+    private jwtService: JwtService,
+  ) {}
 
   async register(registerDto: RegisterDto) {
     const { name, email, password } = registerDto;
 
-    const existingUser = await this.prisma.user.findUnique({ where: { email } });
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email },
+    });
     if (existingUser) {
       throw new ConflictException('Пользователь с таким email уже существует');
     }
@@ -32,21 +39,24 @@ export class AuthService {
       },
     });
 
-    const { password: _, ...result } = newUser;
+    const { password: passwordIgnored, ...result } = newUser;
     return result;
   }
 
   async login(loginDto: LoginDto) {
-    const user = await this.prisma.user.findUnique({
+    const user = (await this.prisma.user.findUnique({
       where: { email: loginDto.email },
       select: { id: true, email: true, password: true, role: true },
-    }) as PrismaUser | null;
+    })) as PrismaUser | null;
 
     if (!user) {
       throw new UnauthorizedException(' Неверные учетные данные');
     }
 
-    const isPasswordValid = await bcrypt.compare(loginDto.password, user.password);
+    const isPasswordValid = await bcrypt.compare(
+      loginDto.password,
+      user.password,
+    );
     if (!isPasswordValid) {
       throw new UnauthorizedException(' Неверные учетные данные');
     }

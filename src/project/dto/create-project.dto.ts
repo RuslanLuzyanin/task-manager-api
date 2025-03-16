@@ -6,7 +6,10 @@ export class CreateProjectDto {
   @IsString()
   name: string;
 
-  @ApiProperty({ example: 'Самый важный проект', description: 'Описание проекта' })
+  @ApiProperty({
+    example: 'Самый важный проект',
+    description: 'Описание проекта',
+  })
   @IsString()
   @IsOptional()
   description?: string;

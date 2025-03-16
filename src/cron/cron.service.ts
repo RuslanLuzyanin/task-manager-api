@@ -10,7 +10,9 @@ export class CronService {
 
   startCronJob() {
     cron.schedule('0 0 * * *', async () => {
-      this.logger.log('Запуск cron-задачи для удаления пользователей с истекшим сроком');
+      this.logger.log(
+        'Запуск cron-задачи для удаления пользователей с истекшим сроком',
+      );
 
       const usersToDelete = await this.prisma.user.findMany({
         where: {
@@ -20,12 +22,14 @@ export class CronService {
         },
       });
 
-      await Promise.all(usersToDelete.map(async (user) => {
-        await this.prisma.user.delete({
-          where: { id: user.id },
-        });
-        this.logger.log(`Пользователь с id ${user.id} был удалён`);
-      }));
+      await Promise.all(
+        usersToDelete.map(async (user) => {
+          await this.prisma.user.delete({
+            where: { id: user.id },
+          });
+          this.logger.log(`Пользователь с id ${user.id} был удалён`);
+        }),
+      );
     });
   }
 }

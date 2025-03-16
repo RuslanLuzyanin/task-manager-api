@@ -5,8 +5,7 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 
 @Injectable()
 export class ProjectService {
-  constructor(private readonly prisma: PrismaService) {
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(createProjectDto: CreateProjectDto) {
     return this.prisma.project.create({
@@ -84,7 +83,11 @@ export class ProjectService {
     });
   }
 
-  async updateUserToProject(projectId: number, userId: number, connect: boolean) {
+  async updateUserToProject(
+    projectId: number,
+    userId: number,
+    connect: boolean,
+  ) {
     const project = await this.prisma.project.findUnique({
       where: { id: projectId },
     });
